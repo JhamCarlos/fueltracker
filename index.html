@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#006A6A">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="FuelTracker">
+<title>FuelTracker ⛽</title>
+<link rel="manifest" id="manifest-link">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Google+Sans+Display:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.9.0/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --md-primary:#006A6A;--md-on-primary:#fff;
+  --md-primary-container:#9DF2EF;--md-on-primary-container:#002020;
+  --md-secondary:#4A6363;--md-secondary-container:#CCE8E8;
+  --md-surface:#FAFDFD;--md-surface-variant:#DAE5E4;
+  --md-on-surface:#191C1C;--md-on-surface-variant:#3F4948;
+  --md-outline:#6F7979;--md-outline-variant:#BEC9C8;
+  --md-error:#BA1A1A;--md-error-container:#FFDAD6;
+  --md-success:#006E2A;--md-success-container:#96F6AC;
+  --md-warning:#7A5800;--md-warning-container:#FFE08B;
+  --el1:0 1px 2px rgba(0,0,0,.12),0 1px 3px rgba(0,0,0,.08);
+  --el2:0 1px 2px rgba(0,0,0,.12),0 2px 6px rgba(0,0,0,.08);
+}
+@media(prefers-color-scheme:dark){:root{
+  --md-primary:#81D6D2;--md-on-primary:#003737;
+  --md-primary-container:#004F4F;--md-on-primary-container:#9DF2EF;
+  --md-secondary:#B0CCCC;--md-secondary-container:#324B4B;
+  --md-surface:#191C1C;--md-surface-variant:#3F4948;
+  --md-on-surface:#E0E3E2;--md-on-surface-variant:#BEC9C8;
+  --md-outline:#889392;--md-outline-variant:#3F4948;
+  --md-error:#FFB4AB;--md-error-container:#93000A;
+  --md-success:#7ADA90;--md-success-container:#005319;
+  --md-warning:#F5C142;--md-warning-container:#5C4100;
+}}
+html,body{height:100%;font-family:'Google Sans',sans-serif;background:var(--md-surface);color:var(--md-on-surface);-webkit-tap-highlight-color:transparent;overflow-x:hidden;}
+.app{max-width:480px;margin:0 auto;padding-bottom:80px;min-height:100vh;}
+
+/* ONBOARDING */
+#onboarding{position:fixed;inset:0;background:var(--md-surface);z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;max-width:480px;margin:0 auto;overflow-y:auto;}
+.ob-hero{font-size:72px;margin-bottom:16px;text-align:center;}
+.ob-title{font-family:'Google Sans Display',sans-serif;font-size:28px;font-weight:500;color:var(--md-on-surface);text-align:center;margin-bottom:8px;}
+.ob-sub{font-size:15px;color:var(--md-on-surface-variant);text-align:center;margin-bottom:32px;line-height:1.5;}
+.ob-card{background:var(--md-surface-variant);border-radius:20px;padding:24px;width:100%;margin-bottom:20px;}
+.ob-label{font-size:11px;letter-spacing:.5px;color:var(--md-on-surface-variant);text-transform:uppercase;font-weight:500;margin-bottom:16px;}
+.ob-unit-bar{display:flex;background:var(--md-surface);border-radius:12px;padding:3px;gap:3px;margin-top:4px;}
+.ob-unit-btn{flex:1;padding:9px 4px;border:none;border-radius:9px;font-family:'Google Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;background:transparent;color:var(--md-on-surface-variant);}
+.ob-unit-btn.active{background:var(--md-primary);color:var(--md-on-primary);box-shadow:var(--el1);}
+.ob-note{font-size:12px;color:var(--md-on-surface-variant);margin-top:8px;text-align:center;}
+
+/* TOP BAR */
+.top-bar{background:var(--md-primary-container);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.top-bar-info{flex:1;min-width:0;}
+.top-bar-title{font-family:'Google Sans Display',sans-serif;font-size:18px;font-weight:500;color:var(--md-on-primary-container);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.top-bar-sub{font-size:11px;color:var(--md-on-primary-container);opacity:.7;margin-top:1px;}
+.icon-btn{width:38px;height:38px;border-radius:50%;background:rgba(0,106,106,.15);display:flex;align-items:center;justify-content:center;color:var(--md-primary);border:none;cursor:pointer;flex-shrink:0;transition:background .15s;}
+.icon-btn:hover{background:rgba(0,106,106,.25);}
+.top-actions{display:flex;gap:6px;flex-shrink:0;}
+
+/* GDRIVE BADGE */
+.gdrive-badge{display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:500;cursor:pointer;border:none;font-family:'Google Sans',sans-serif;transition:all .15s;}
+.gdrive-badge.connected{background:var(--md-success-container);color:var(--md-success);}
+.gdrive-badge.disconnected{background:var(--md-surface-variant);color:var(--md-on-surface-variant);}
+
+/* UNIT BAR */
+.unit-bar{display:flex;background:var(--md-surface-variant);border-radius:12px;padding:3px;gap:3px;}
+.unit-btn{flex:1;padding:8px 4px;border:none;border-radius:9px;font-family:'Google Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;background:transparent;color:var(--md-on-surface-variant);}
+.unit-btn.active{background:var(--md-primary);color:var(--md-on-primary);box-shadow:var(--el1);}
+
+/* NAV */
+.nav-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--md-surface);border-top:1px solid var(--md-outline-variant);display:flex;z-index:100;padding:0 4px;}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 4px 8px;cursor:pointer;font-size:11px;color:var(--md-on-surface-variant);background:none;border:none;gap:3px;position:relative;overflow:hidden;transition:color .2s;}
+.nav-item.active{color:var(--md-primary);}
+.nav-pill{width:60px;height:30px;border-radius:15px;background:var(--md-secondary-container);position:absolute;top:7px;left:50%;transform:translateX(-50%);opacity:0;transition:opacity .2s;}
+.nav-item.active .nav-pill{opacity:1;}
+.nav-item i{font-size:20px;position:relative;z-index:1;}
+.nav-item span{position:relative;z-index:1;font-weight:500;}
+
+/* SECTION / CARDS */
+.section{padding:14px 14px 0;}
+.md-card{background:var(--md-surface);border:1px solid var(--md-outline-variant);border-radius:16px;padding:18px;margin-bottom:14px;}
+.label-sm{font-size:11px;letter-spacing:.5px;color:var(--md-on-surface-variant);text-transform:uppercase;font-weight:500;margin-bottom:12px;}
+
+/* METRIC */
+.metric-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:14px;}
+.metric-chip{background:var(--md-surface-variant);border-radius:12px;padding:14px;}
+.metric-chip .lbl{font-size:11px;color:var(--md-on-surface-variant);margin-bottom:4px;font-weight:500;}
+.metric-chip .val{font-size:20px;font-weight:700;color:var(--md-on-surface);line-height:1.1;}
+.metric-chip .unt{font-size:11px;color:var(--md-on-surface-variant);}
+
+/* INPUTS */
+.inp-wrap{position:relative;margin-bottom:14px;}
+.inp-wrap label{position:absolute;top:13px;left:12px;font-size:14px;color:var(--md-outline);pointer-events:none;transition:.15s;background:transparent;z-index:1;}
+.inp-wrap input:focus~label,.inp-wrap input:not(:placeholder-shown)~label{top:-8px;left:9px;font-size:11px;background:var(--md-surface);padding:0 4px;color:var(--md-primary);letter-spacing:.3px;}
+.inp-wrap input{width:100%;padding:13px 12px;border:1px solid var(--md-outline-variant);border-radius:4px 4px 0 0;background:var(--md-surface);color:var(--md-on-surface);font-size:15px;font-family:'Google Sans',sans-serif;border-bottom:2px solid var(--md-outline);outline:none;transition:border-color .15s;}
+.inp-wrap input:focus{border-bottom:2px solid var(--md-primary);}
+.inp-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
+
+/* PHOTO BTNS — ahora con dos acciones */
+.photo-group{margin-bottom:10px;}
+.photo-main{width:100%;padding:13px;border:1.5px dashed var(--md-outline-variant);border-radius:12px 12px 0 0;background:var(--md-surface-variant);color:var(--md-on-surface-variant);font-size:13px;cursor:pointer;display:flex;align-items:center;gap:12px;font-family:'Google Sans',sans-serif;transition:all .15s;border-bottom:none;}
+.photo-main.done{border-color:var(--md-success);background:var(--md-success-container);color:var(--md-success);border-style:solid;}
+.photo-actions{display:flex;border:1.5px solid var(--md-outline-variant);border-radius:0 0 12px 12px;overflow:hidden;}
+.photo-actions.done{border-color:var(--md-success);}
+.pa-btn{flex:1;padding:8px 4px;border:none;background:var(--md-surface);color:var(--md-primary);font-size:12px;font-weight:500;cursor:pointer;font-family:'Google Sans',sans-serif;display:flex;align-items:center;justify-content:center;gap:5px;transition:background .15s;}
+.pa-btn:hover{background:var(--md-primary-container);}
+.pa-btn:first-child{border-right:1px solid var(--md-outline-variant);}
+.ph-icon{width:38px;height:38px;border-radius:8px;background:rgba(0,106,106,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+
+/* PREVIEW */
+.photo-preview{width:100%;height:110px;object-fit:cover;border-radius:8px;margin-top:8px;display:none;}
+
+/* STATUS CHIP */
+.status-chip{padding:8px 12px;border-radius:8px;font-size:12px;display:flex;align-items:center;gap:8px;margin-bottom:12px;}
+.s-loading{background:var(--md-surface-variant);color:var(--md-on-surface-variant);}
+.s-ok{background:var(--md-success-container);color:var(--md-success);}
+.s-err{background:var(--md-error-container);color:var(--md-error);}
+
+/* BUTTONS */
+.btn-fab{width:100%;padding:14px;background:var(--md-primary);color:var(--md-on-primary);border:none;border-radius:16px;font-family:'Google Sans',sans-serif;font-size:15px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:var(--el2);transition:opacity .15s;}
+.btn-fab:active{opacity:.85;}
+.btn-fab:disabled{opacity:.4;cursor:not-allowed;box-shadow:none;}
+.btn-text{background:none;border:none;font-family:'Google Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;padding:8px 12px;border-radius:8px;color:var(--md-primary);}
+.btn-text:hover{background:var(--md-primary-container);}
+.btn-text.danger{color:var(--md-error);}
+.btn-text.danger:hover{background:var(--md-error-container);}
+
+/* HISTORY */
+.h-item{padding:11px 0;border-bottom:1px solid var(--md-outline-variant);display:flex;align-items:center;gap:12px;}
+.h-item:last-child{border-bottom:none;}
+.h-av{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;background:var(--md-primary-container);color:var(--md-on-primary-container);}
+.h-main{flex:1;min-width:0;}
+.h-title{font-size:13px;font-weight:500;color:var(--md-on-surface);}
+.h-sub{font-size:11px;color:var(--md-on-surface-variant);margin-top:2px;}
+.h-badge{font-size:11px;font-weight:700;padding:4px 9px;border-radius:20px;white-space:nowrap;flex-shrink:0;}
+.bg{background:var(--md-success-container);color:var(--md-success);}
+.ba{background:var(--md-warning-container);color:var(--md-warning);}
+.bl{background:var(--md-error-container);color:var(--md-error);}
+.btn-del{background:none;border:none;color:var(--md-outline);cursor:pointer;padding:4px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:color .15s,background .15s;flex-shrink:0;}
+.btn-del:hover{color:var(--md-error);background:var(--md-error-container);}
+
+/* SETTINGS */
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--md-outline-variant);}
+.setting-row:last-child{border-bottom:none;}
+.setting-label{font-size:14px;font-weight:500;color:var(--md-on-surface);}
+.setting-sub{font-size:12px;color:var(--md-on-surface-variant);margin-top:2px;}
+.setting-value{font-size:13px;color:var(--md-primary);font-weight:500;text-align:right;max-width:55%;}
+.vehicle-card{background:var(--md-primary-container);border-radius:16px;padding:18px;margin-bottom:14px;display:flex;align-items:center;gap:14px;}
+.vehicle-name{font-family:'Google Sans Display',sans-serif;font-size:20px;font-weight:500;color:var(--md-on-primary-container);}
+.vehicle-detail{font-size:13px;color:var(--md-on-primary-container);opacity:.75;margin-top:2px;}
+
+/* GDRIVE CARD */
+.gdrive-card{border-radius:16px;padding:18px;margin-bottom:14px;border:1.5px solid var(--md-outline-variant);}
+.gdrive-card.connected{background:var(--md-success-container);border-color:var(--md-success);}
+.gdrive-user{font-size:13px;color:var(--md-success);font-weight:500;margin-top:4px;}
+
+/* INSTALL BANNER */
+.install-banner{background:var(--md-primary);color:var(--md-on-primary);padding:12px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;}
+.install-x{background:none;border:none;color:var(--md-on-primary);cursor:pointer;padding:4px;opacity:.8;}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;display:flex;align-items:flex-end;justify-content:center;padding:0;}
+.modal-card{background:var(--md-surface);border-radius:28px 28px 0 0;padding:28px 24px 32px;width:100%;max-width:480px;box-shadow:0 -4px 24px rgba(0,0,0,.2);max-height:90vh;overflow-y:auto;}
+.modal-handle{width:32px;height:4px;background:var(--md-outline-variant);border-radius:2px;margin:0 auto 20px;}
+.modal-title{font-size:18px;font-weight:500;margin-bottom:8px;color:var(--md-on-surface);}
+.modal-body{font-size:14px;color:var(--md-on-surface-variant);margin-bottom:20px;line-height:1.6;}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;}
+
+/* SNACK */
+.snack{position:fixed;bottom:86px;left:50%;transform:translateX(-50%) translateY(12px);background:#2d3232;color:#fff;padding:11px 18px;border-radius:8px;font-size:13px;font-family:'Google Sans',sans-serif;opacity:0;transition:opacity .25s,transform .25s;z-index:600;white-space:nowrap;box-shadow:var(--el2);max-width:90%;text-align:center;}
+.snack.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* SPINNER */
+.sp{display:inline-block;width:14px;height:14px;border:2px solid rgba(0,106,106,.25);border-top-color:var(--md-primary);border-radius:50%;animation:sp .65s linear infinite;}
+.sp-w{border-color:rgba(255,255,255,.3);border-top-color:#fff;}
+@keyframes sp{to{transform:rotate(360deg);}}
+
+.empty-state{text-align:center;padding:2rem 1rem;color:var(--md-on-surface-variant);}
+.empty-icon{font-size:44px;margin-bottom:10px;display:block;opacity:.4;}
+
+/* OB inputs reusing main styles */
+.ob-inp-wrap{position:relative;margin-bottom:14px;}
+.ob-inp-wrap label{position:absolute;top:13px;left:12px;font-size:14px;color:var(--md-outline);pointer-events:none;transition:.15s;background:transparent;z-index:1;}
+.ob-inp-wrap input:focus~label,.ob-inp-wrap input:not(:placeholder-shown)~label{top:-8px;left:9px;font-size:11px;background:var(--md-surface-variant);padding:0 4px;color:var(--md-primary);letter-spacing:.3px;}
+.ob-inp-wrap input{width:100%;padding:13px 12px;border:1px solid var(--md-outline-variant);border-radius:4px 4px 0 0;background:transparent;color:var(--md-on-surface);font-size:15px;font-family:'Google Sans',sans-serif;border-bottom:2px solid var(--md-outline);outline:none;transition:border-color .15s;}
+.ob-inp-wrap input:focus{border-bottom:2px solid var(--md-primary);}
+</style>
+</head>
+<body>
+
+<!-- ONBOARDING -->
+<div id="onboarding">
+  <div class="ob-hero">⛽</div>
+  <div class="ob-title">FuelTracker</div>
+  <div class="ob-sub">Antes de empezar, cuéntanos sobre tu vehículo.</div>
+  <div class="ob-card">
+    <div class="ob-label">Tu vehículo</div>
+    <div class="ob-inp-wrap"><input type="text" id="ob-nombre" placeholder=" " maxlength="30"><label>Nombre o apodo del carro *</label></div>
+    <div class="ob-inp-wrap"><input type="text" id="ob-marca" placeholder=" " maxlength="30"><label>Marca (ej. Subaru)</label></div>
+    <div class="inp-row">
+      <div class="ob-inp-wrap"><input type="text" id="ob-modelo" placeholder=" " maxlength="30"><label>Modelo (ej. Impreza)</label></div>
+      <div class="ob-inp-wrap"><input type="text" id="ob-anio" placeholder=" " maxlength="4" inputmode="numeric"><label>Año</label></div>
+    </div>
+    <div style="margin-top:4px;">
+      <div style="font-size:11px;letter-spacing:.5px;color:var(--md-on-surface-variant);text-transform:uppercase;font-weight:500;margin-bottom:8px;">Unidad de combustible</div>
+      <div class="ob-unit-bar" role="group">
+        <button class="ob-unit-btn active" id="ob-uL" onclick="obSetUnit('L')">Litros (km/L)</button>
+        <button class="ob-unit-btn" id="ob-ugal" onclick="obSetUnit('gal')">Galones (km/gal)</button>
+      </div>
+    </div>
+  </div>
+  <div class="ob-note">Podrás editar estos datos en Ajustes</div>
+  <button class="btn-fab" style="margin-top:12px;width:100%;" onclick="finishOnboarding()">
+    <i class="ti ti-arrow-right" aria-hidden="true"></i> Comenzar
+  </button>
+</div>
+
+<!-- MAIN APP -->
+<div class="app" id="main-app" style="display:none;">
+
+  <div class="install-banner" id="install-banner" style="display:none;" onclick="installApp()">
+    <i class="ti ti-download" style="font-size:22px;" aria-hidden="true"></i>
+    <div style="flex:1;"><div style="font-weight:500;font-size:14px;">Instalar en tu celular</div><div style="font-size:12px;opacity:.8;">Agregar a pantalla de inicio</div></div>
+    <button class="install-x" onclick="event.stopPropagation();document.getElementById('install-banner').style.display='none';" aria-label="Cerrar"><i class="ti ti-x" style="font-size:18px;" aria-hidden="true"></i></button>
+  </div>
+
+  <div class="top-bar">
+    <div class="top-bar-info">
+      <div class="top-bar-title" id="app-title">FuelTracker</div>
+      <div class="top-bar-sub" id="top-sub">0 registros</div>
+    </div>
+    <div class="top-actions">
+      <button class="gdrive-badge disconnected" id="gdrive-badge" onclick="toggleGDrive()" title="Google Drive Sync">
+        <i class="ti ti-brand-google-drive" style="font-size:15px;" aria-hidden="true"></i>
+        <span id="gdrive-label">Drive</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- UNIT BAR -->
+  <div style="padding:12px 14px 0;">
+    <div style="font-size:11px;letter-spacing:.5px;color:var(--md-on-surface-variant);text-transform:uppercase;font-weight:500;margin-bottom:8px;">Unidades de combustible</div>
+    <div class="unit-bar" role="group">
+      <button class="unit-btn active" id="u-L" onclick="setUnit('L')">Litros (km/L)</button>
+      <button class="unit-btn" id="u-gal" onclick="setUnit('gal')">Galones (km/gal)</button>
+    </div>
+  </div>
+
+  <!-- PAGE: REGISTRAR -->
+  <div id="page-reg">
+    <div class="section">
+      <div class="md-card">
+        <div class="label-sm">Captura con fotos</div>
+
+        <!-- RECIBO -->
+        <input type="file" id="fr-cam" accept="image/*" capture="environment" style="display:none;" onchange="handleFoto(this,'r')">
+        <input type="file" id="fr-gal" accept="image/*" style="display:none;" onchange="handleFoto(this,'r')">
+        <div class="photo-group">
+          <div class="photo-main" id="pb-r">
+            <div class="ph-icon"><i class="ti ti-receipt" style="font-size:20px;color:var(--md-primary);" aria-hidden="true"></i></div>
+            <div><div style="font-weight:500;" id="rl">Foto del recibo</div><div style="font-size:11px;opacity:.7;" id="rl-sub">Cantidad · precio · total</div></div>
+          </div>
+          <div class="photo-actions" id="pa-r">
+            <button class="pa-btn" onclick="document.getElementById('fr-cam').click()"><i class="ti ti-camera" style="font-size:14px;" aria-hidden="true"></i> Cámara</button>
+            <button class="pa-btn" onclick="document.getElementById('fr-gal').click()"><i class="ti ti-photo" style="font-size:14px;" aria-hidden="true"></i> Galería</button>
+          </div>
+          <img id="prev-r" class="photo-preview" alt="Vista previa del recibo">
+        </div>
+
+        <!-- TABLERO -->
+        <input type="file" id="ft-cam" accept="image/*" capture="environment" style="display:none;" onchange="handleFoto(this,'t')">
+        <input type="file" id="ft-gal" accept="image/*" style="display:none;" onchange="handleFoto(this,'t')">
+        <div class="photo-group">
+          <div class="photo-main" id="pb-t">
+            <div class="ph-icon"><i class="ti ti-dashboard" style="font-size:20px;color:var(--md-primary);" aria-hidden="true"></i></div>
+            <div><div style="font-weight:500;" id="tl">Foto del odómetro</div><div style="font-size:11px;opacity:.7;">Kilometraje actual</div></div>
+          </div>
+          <div class="photo-actions" id="pa-t">
+            <button class="pa-btn" onclick="document.getElementById('ft-cam').click()"><i class="ti ti-camera" style="font-size:14px;" aria-hidden="true"></i> Cámara</button>
+            <button class="pa-btn" onclick="document.getElementById('ft-gal').click()"><i class="ti ti-photo" style="font-size:14px;" aria-hidden="true"></i> Galería</button>
+          </div>
+          <img id="prev-t" class="photo-preview" alt="Vista previa del odómetro">
+        </div>
+
+        <div id="ai-st" style="display:none;"></div>
+      </div>
+
+      <div class="md-card">
+        <div class="label-sm">O ingresa manualmente</div>
+        <div class="inp-wrap"><input type="number" id="f-km" placeholder=" " inputmode="numeric"><label>Kilometraje actual (km)</label></div>
+        <div class="inp-row">
+          <div class="inp-wrap"><input type="number" id="f-vol" placeholder=" " inputmode="decimal" step="0.01"><label id="lbl-vol">Litros cargados</label></div>
+          <div class="inp-wrap"><input type="number" id="f-pvol" placeholder=" " inputmode="decimal" step="0.01"><label id="lbl-pvol">Precio/litro (S/)</label></div>
+        </div>
+        <div class="inp-wrap"><input type="number" id="f-total" placeholder=" " inputmode="decimal" step="0.01"><label>Total pagado (S/)</label></div>
+      </div>
+
+      <button class="btn-fab" onclick="guardar()"><i class="ti ti-device-floppy" aria-hidden="true"></i> Guardar tanqueada</button>
+    </div>
+  </div>
+
+  <!-- PAGE: HISTORIAL -->
+  <div id="page-hist" style="display:none;">
+    <div class="section">
+      <div id="mg" class="metric-grid"></div>
+      <div class="md-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <div class="label-sm" style="margin-bottom:0;">Todos los registros</div>
+          <button class="btn-text danger" style="font-size:12px;padding:4px 10px;" onclick="confirmarBorrarTodo()">Borrar todo</button>
+        </div>
+        <div id="lista"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE: GRAFICAS -->
+  <div id="page-graf" style="display:none;">
+    <div class="section">
+      <div id="g-empty" class="empty-state" style="display:none;"><i class="empty-icon ti ti-chart-off" aria-hidden="true"></i>Registra al menos 2 tanqueadas para ver gráficas</div>
+      <div id="g-content">
+        <div class="md-card"><div class="label-sm" id="lbl-c1">Rendimiento (km/L)</div><div style="position:relative;width:100%;height:210px;"><canvas id="c1"></canvas></div></div>
+        <div class="md-card" style="margin-top:14px;"><div class="label-sm">Costo por km (S/)</div><div style="position:relative;width:100%;height:170px;"><canvas id="c2"></canvas></div></div>
+        <div class="md-card" style="margin-top:14px;"><div class="label-sm">Gasto por tanqueada (S/)</div><div style="position:relative;width:100%;height:170px;"><canvas id="c3"></canvas></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE: AJUSTES -->
+  <div id="page-ajustes" style="display:none;">
+    <div class="section">
+      <div class="vehicle-card">
+        <div style="font-size:40px;">🚗</div>
+        <div><div class="vehicle-name" id="vc-nombre">Mi carro</div><div class="vehicle-detail" id="vc-detail">—</div></div>
+      </div>
+
+      <!-- GOOGLE DRIVE -->
+      <div class="gdrive-card" id="gdrive-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <i class="ti ti-brand-google-drive" style="font-size:28px;color:#4285F4;" aria-hidden="true"></i>
+            <div>
+              <div style="font-size:14px;font-weight:500;color:var(--md-on-surface);">Google Drive Sync</div>
+              <div id="gdrive-status-text" style="font-size:12px;color:var(--md-on-surface-variant);margin-top:2px;">Sin conectar</div>
+            </div>
+          </div>
+          <button class="btn-fab" id="gdrive-action-btn" style="width:auto;padding:8px 16px;font-size:13px;box-shadow:none;" onclick="toggleGDrive()">Conectar</button>
+        </div>
+        <div id="gdrive-user-info" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--md-outline-variant);">
+          <div style="font-size:12px;color:var(--md-on-surface-variant);">Último sync:</div>
+          <div style="font-size:13px;font-weight:500;color:var(--md-on-surface);margin-top:2px;" id="gdrive-last-sync">—</div>
+        </div>
+      </div>
+
+      <div class="md-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <div class="label-sm" style="margin-bottom:0;">Datos del vehículo</div>
+          <button class="btn-text" style="font-size:12px;padding:4px 10px;" onclick="abrirEditarVehiculo()"><i class="ti ti-edit" style="font-size:14px;vertical-align:-2px;" aria-hidden="true"></i> Editar</button>
+        </div>
+        <div class="setting-row"><div><div class="setting-label">Nombre / apodo</div></div><div class="setting-value" id="sv-nombre">—</div></div>
+        <div class="setting-row"><div><div class="setting-label">Marca</div></div><div class="setting-value" id="sv-marca">—</div></div>
+        <div class="setting-row"><div><div class="setting-label">Modelo</div></div><div class="setting-value" id="sv-modelo">—</div></div>
+        <div class="setting-row"><div><div class="setting-label">Año</div></div><div class="setting-value" id="sv-anio">—</div></div>
+      </div>
+
+      <div class="md-card">
+        <div class="label-sm">Estadísticas</div>
+        <div class="setting-row"><div><div class="setting-label">Total tanqueadas</div></div><div class="setting-value" id="st-total">0</div></div>
+        <div class="setting-row"><div><div class="setting-label">Mejor rendimiento</div></div><div class="setting-value" id="st-best">—</div></div>
+        <div class="setting-row"><div><div class="setting-label">Peor rendimiento</div></div><div class="setting-value" id="st-worst">—</div></div>
+        <div class="setting-row"><div><div class="setting-label">Total gastado</div></div><div class="setting-value" id="st-gasto">S/ 0</div></div>
+        <div class="setting-row"><div><div class="setting-label">Km registrados</div></div><div class="setting-value" id="st-km">—</div></div>
+      </div>
+
+      <div class="md-card">
+        <div class="label-sm">Datos y respaldo</div>
+        <div class="setting-row"><div><div class="setting-label">Exportar backup</div><div class="setting-sub">Archivo JSON local</div></div><button class="icon-btn" onclick="exportar()" aria-label="Exportar"><i class="ti ti-download" style="font-size:18px;" aria-hidden="true"></i></button></div>
+        <div class="setting-row"><div><div class="setting-label">Importar backup</div><div class="setting-sub">Restaurar desde JSON</div></div><button class="icon-btn" onclick="document.getElementById('imp').click()" aria-label="Importar"><i class="ti ti-upload" style="font-size:18px;" aria-hidden="true"></i></button></div>
+        <div class="setting-row"><div><div class="setting-label">Borrar registros</div><div class="setting-sub">Mantiene datos del vehículo</div></div><button class="icon-btn" style="background:rgba(186,26,26,.1);color:var(--md-error);" onclick="confirmarBorrarTodo()" aria-label="Borrar"><i class="ti ti-trash" style="font-size:18px;" aria-hidden="true"></i></button></div>
+        <div class="setting-row"><div><div class="setting-label">Restablecer todo</div><div class="setting-sub">Vuelve al inicio</div></div><button class="icon-btn" style="background:rgba(186,26,26,.1);color:var(--md-error);" onclick="confirmarReset()" aria-label="Reset"><i class="ti ti-refresh-alert" style="font-size:18px;" aria-hidden="true"></i></button></div>
+      </div>
+      <div style="text-align:center;font-size:12px;color:var(--md-on-surface-variant);padding:8px 0 4px;">FuelTracker · Datos locales en tu dispositivo</div>
+    </div>
+  </div>
+
+  <input type="file" id="imp" accept=".json" style="display:none;" onchange="importar(this)">
+
+  <nav class="nav-bar" aria-label="Navegación">
+    <button class="nav-item active" id="nav-r" onclick="showPage('reg')"><div class="nav-pill"></div><i class="ti ti-plus" aria-hidden="true"></i><span>Registrar</span></button>
+    <button class="nav-item" id="nav-h" onclick="showPage('hist')"><div class="nav-pill"></div><i class="ti ti-list-details" aria-hidden="true"></i><span>Historial</span></button>
+    <button class="nav-item" id="nav-g" onclick="showPage('graf')"><div class="nav-pill"></div><i class="ti ti-chart-line" aria-hidden="true"></i><span>Gráficas</span></button>
+    <button class="nav-item" id="nav-a" onclick="showPage('ajustes')"><div class="nav-pill"></div><i class="ti ti-settings" aria-hidden="true"></i><span>Ajustes</span></button>
+  </nav>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal" style="display:none;" onclick="closeModal(event)">
+  <div class="modal-card" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-title"></div>
+    <div class="modal-body" id="modal-body"></div>
+    <div id="modal-extra"></div>
+    <div class="modal-actions">
+      <button class="btn-text" onclick="closeModal()">Cancelar</button>
+      <button class="btn-text danger" id="modal-ok">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<div class="snack" id="snack"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+// ── CONFIG ────────────────────────────────────────────────
+var GDRIVE_CLIENT_ID = '155247396901-4trvgu0m7fuk0r9tg93h9ti1274ipagq.apps.googleusercontent.com';
+var GDRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.appdata';
+var GDRIVE_FILE_NAME = 'fueltracker_data.json';
+
+// ── STATE ─────────────────────────────────────────────────
+var unit='L', b64r=null, b64t=null, aiRunning=false, c1=null, c2=null, c3=null, deferredInstall=null;
+var obUnit='L';
+var gdriveToken=null, gdriveFileId=null, gdriveSyncing=false;
+
+// ── STORAGE ───────────────────────────────────────────────
+function getRecs(){try{return JSON.parse(localStorage.getItem('ft_recs')||'[]');}catch(e){return[];}}
+function saveRecs(r){localStorage.setItem('ft_recs',JSON.stringify(r));}
+function getUnit(){return localStorage.getItem('ft_unit')||'L';}
+function saveUnit(u){localStorage.setItem('ft_unit',u);}
+function getVehicle(){try{return JSON.parse(localStorage.getItem('ft_vehicle')||'null');}catch(e){return null;}}
+function saveVehicle(v){localStorage.setItem('ft_vehicle',JSON.stringify(v));}
+
+// ── INIT ──────────────────────────────────────────────────
+window.addEventListener('load',function(){
+  var v=getVehicle();
+  if(v){
+    document.getElementById('onboarding').style.display='none';
+    document.getElementById('main-app').style.display='';
+    unit=getUnit(); applyUnit(); refreshAll();
+  }
+  obSetUnit(getUnit());
+  // restore gdrive token
+  var savedToken=localStorage.getItem('ft_gdrive_token');
+  if(savedToken){gdriveToken=savedToken;updateGDriveBadge(true);}
+});
+
+window.addEventListener('beforeinstallprompt',function(e){
+  e.preventDefault();deferredInstall=e;
+  document.getElementById('install-banner').style.display='flex';
+});
+function installApp(){
+  if(!deferredInstall)return;
+  deferredInstall.prompt();
+  deferredInstall.userChoice.then(function(){deferredInstall=null;});
+}
+
+// ── ONBOARDING ────────────────────────────────────────────
+function obSetUnit(u){
+  obUnit=u;
+  document.getElementById('ob-uL').classList.toggle('active',u==='L');
+  document.getElementById('ob-ugal').classList.toggle('active',u==='gal');
+}
+function finishOnboarding(){
+  var nombre=document.getElementById('ob-nombre').value.trim();
+  if(!nombre){snack('⚠ El nombre del carro es obligatorio');return;}
+  saveVehicle({nombre:nombre,marca:document.getElementById('ob-marca').value.trim(),modelo:document.getElementById('ob-modelo').value.trim(),anio:document.getElementById('ob-anio').value.trim()});
+  saveUnit(obUnit); unit=obUnit;
+  document.getElementById('onboarding').style.display='none';
+  document.getElementById('main-app').style.display='';
+  applyUnit(); refreshAll();
+  snack('¡Bienvenido, '+nombre+'!');
+  injectManifest(nombre);
+}
+function injectManifest(n){
+  var m={name:n||'FuelTracker',short_name:n||'FuelTracker',start_url:location.href,display:'standalone',background_color:'#FAFDFD',theme_color:'#006A6A',icons:[{src:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><rect width="192" height="192" rx="40" fill="%23006A6A"/><text y="130" x="96" text-anchor="middle" font-size="110">⛽</text></svg>',sizes:'192x192',type:'image/svg+xml'}]};
+  var blob=new Blob([JSON.stringify(m)],{type:'application/json'});
+  document.getElementById('manifest-link').setAttribute('href',URL.createObjectURL(blob));
+}
+
+// ── GOOGLE DRIVE ──────────────────────────────────────────
+function toggleGDrive(){
+  if(gdriveToken){confirmarDesconectarDrive();return;}
+  // Load GIS if not loaded
+  if(!window.google||!window.google.accounts){
+    var s=document.createElement('script');
+    s.src='https://accounts.google.com/gsi/client';
+    s.onload=function(){iniciarAuthDrive();};
+    document.head.appendChild(s);
+  } else {
+    iniciarAuthDrive();
+  }
+}
+
+function iniciarAuthDrive(){
+  try{
+    var client=google.accounts.oauth2.initTokenClient({
+      client_id:GDRIVE_CLIENT_ID,
+      scope:GDRIVE_SCOPE,
+      callback:function(resp){
+        if(resp.error){snack('⚠ Error al conectar con Google Drive');return;}
+        gdriveToken=resp.access_token;
+        localStorage.setItem('ft_gdrive_token',gdriveToken);
+        updateGDriveBadge(true);
+        snack('✓ Conectado a Google Drive');
+        syncToDrive();
+      }
+    });
+    client.requestAccessToken();
+  }catch(e){
+    snack('⚠ Error al iniciar auth: '+e.message);
+  }
+}
+
+function updateGDriveBadge(connected){
+  var badge=document.getElementById('gdrive-badge');
+  var label=document.getElementById('gdrive-label');
+  var card=document.getElementById('gdrive-card');
+  var statusText=document.getElementById('gdrive-status-text');
+  var actionBtn=document.getElementById('gdrive-action-btn');
+  var userInfo=document.getElementById('gdrive-user-info');
+  if(connected){
+    badge.className='gdrive-badge connected';
+    label.textContent='Sync ✓';
+    if(card){card.className='gdrive-card connected';}
+    if(statusText)statusText.textContent='Conectado y sincronizando';
+    if(actionBtn){actionBtn.textContent='Desconectar';actionBtn.style.background='var(--md-error)';actionBtn.style.color='#fff';}
+    if(userInfo)userInfo.style.display='block';
+  } else {
+    badge.className='gdrive-badge disconnected';
+    label.textContent='Drive';
+    if(card){card.className='gdrive-card';}
+    if(statusText)statusText.textContent='Sin conectar';
+    if(actionBtn){actionBtn.textContent='Conectar';actionBtn.style.background='var(--md-primary)';actionBtn.style.color='#fff';}
+    if(userInfo)userInfo.style.display='none';
+  }
+}
+
+async function syncToDrive(){
+  if(!gdriveToken||gdriveSyncing)return;
+  gdriveSyncing=true;
+  snack('↑ Sincronizando con Google Drive...');
+  try{
+    var data={version:3,unit:unit,vehicle:getVehicle(),exportado:new Date().toISOString(),registros:getRecs()};
+    var jsonStr=JSON.stringify(data,null,2);
+    // Find existing file
+    var searchResp=await fetch('https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name%3D%27'+GDRIVE_FILE_NAME+'%27&fields=files(id)',{headers:{Authorization:'Bearer '+gdriveToken}});
+    var searchData=await searchResp.json();
+    if(searchData.error&&searchData.error.code===401){handleTokenExpired();return;}
+    var fileId=searchData.files&&searchData.files.length>0?searchData.files[0].id:null;
+    var url, method;
+    if(fileId){
+      url='https://www.googleapis.com/upload/drive/v3/files/'+fileId+'?uploadType=media';
+      method='PATCH';
+    } else {
+      // Create with metadata first
+      var metaResp=await fetch('https://www.googleapis.com/drive/v3/files',{method:'POST',headers:{Authorization:'Bearer '+gdriveToken,'Content-Type':'application/json'},body:JSON.stringify({name:GDRIVE_FILE_NAME,parents:['appDataFolder']})});
+      var metaData=await metaResp.json();
+      fileId=metaData.id;
+      url='https://www.googleapis.com/upload/drive/v3/files/'+fileId+'?uploadType=media';
+      method='PATCH';
+    }
+    gdriveFileId=fileId;
+    var uploadResp=await fetch(url,{method:method,headers:{Authorization:'Bearer '+gdriveToken,'Content-Type':'application/json'},body:jsonStr});
+    if(!uploadResp.ok)throw new Error('Upload failed');
+    var now=new Date().toLocaleString('es-PE',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+    localStorage.setItem('ft_gdrive_sync',now);
+    var lastSync=document.getElementById('gdrive-last-sync');
+    if(lastSync)lastSync.textContent=now;
+    snack('✓ Sincronizado con Google Drive');
+  }catch(e){
+    snack('⚠ Error al sincronizar: '+e.message);
+  }
+  gdriveSyncing=false;
+}
+
+async function loadFromDrive(){
+  if(!gdriveToken)return;
+  snack('↓ Cargando datos de Google Drive...');
+  try{
+    var searchResp=await fetch('https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name%3D%27'+GDRIVE_FILE_NAME+'%27&fields=files(id)',{headers:{Authorization:'Bearer '+gdriveToken}});
+    var searchData=await searchResp.json();
+    if(!searchData.files||searchData.files.length===0){snack('No se encontró archivo en Drive');return;}
+    var fileId=searchData.files[0].id;
+    var fileResp=await fetch('https://www.googleapis.com/drive/v3/files/'+fileId+'?alt=media',{headers:{Authorization:'Bearer '+gdriveToken}});
+    var data=await fileResp.json();
+    var recs=data.registros||[];
+    var existing=getRecs();
+    var ids=new Set(existing.map(function(r){return r.id;}));
+    var nuevos=recs.filter(function(r){return !ids.has(r.id);});
+    var merged=existing.concat(nuevos).sort(function(a,b){return a.km-b.km;});
+    saveRecs(merged);
+    if(data.unit){unit=data.unit;saveUnit(unit);applyUnit();}
+    if(data.vehicle&&data.vehicle.nombre)saveVehicle(data.vehicle);
+    refreshAll();
+    snack('✓ '+nuevos.length+' registros nuevos cargados de Drive');
+  }catch(e){
+    snack('⚠ Error al cargar de Drive');
+  }
+}
+
+function handleTokenExpired(){
+  gdriveToken=null;
+  localStorage.removeItem('ft_gdrive_token');
+  updateGDriveBadge(false);
+  snack('Sesión de Drive expirada, vuelve a conectar');
+}
+
+function confirmarDesconectarDrive(){
+  document.getElementById('modal-title').textContent='Desconectar Google Drive';
+  document.getElementById('modal-body').textContent='¿Desconectar la sincronización con Google Drive? Tus datos locales no se borran.';
+  document.getElementById('modal-extra').innerHTML='<button class="btn-fab" style="margin-bottom:10px;" onclick="loadFromDrive();closeModal()"><i class=\"ti ti-cloud-download\" aria-hidden=\"true\"></i> Cargar datos de Drive primero</button>';
+  document.getElementById('modal-ok').textContent='Desconectar';
+  document.getElementById('modal-ok').className='btn-text danger';
+  document.getElementById('modal-ok').onclick=function(){
+    gdriveToken=null;gdriveFileId=null;
+    localStorage.removeItem('ft_gdrive_token');
+    updateGDriveBadge(false);
+    closeModal();snack('Google Drive desconectado');
+  };
+  document.getElementById('modal').style.display='flex';
+}
+
+// ── UNIT ──────────────────────────────────────────────────
+function setUnit(u){
+  unit=u;saveUnit(u);applyUnit();
+  snack(u==='L'?'Unidades: Litros (km/L)':'Unidades: Galones (km/gal)');
+  refreshAll();
+  if(document.getElementById('page-hist').style.display!=='none')renderHist();
+  if(document.getElementById('page-graf').style.display!=='none')renderGraf();
+}
+function applyUnit(){
+  var isL=unit==='L';
+  document.getElementById('u-L').classList.toggle('active',isL);
+  document.getElementById('u-gal').classList.toggle('active',!isL);
+  document.getElementById('lbl-vol').textContent=isL?'Litros cargados':'Galones cargados';
+  document.getElementById('lbl-pvol').textContent=isL?'Precio/litro (S/)':'Precio/galón (S/)';
+  document.getElementById('rl-sub').textContent=isL?'Litros · precio · total':'Galones · precio · total';
+  var lc1=document.getElementById('lbl-c1');
+  if(lc1)lc1.textContent=isL?'Rendimiento (km/L)':'Rendimiento (km/gal)';
+}
+function unitLabel(){return unit==='L'?'km/L':'km/gal';}
+
+function updateTopSub(){
+  var r=getRecs(),wr=r.filter(function(x){return x.rend;});
+  var avg=wr.length?(wr.reduce(function(s,x){return s+x.rend;},0)/wr.length).toFixed(1):null;
+  document.getElementById('top-sub').textContent=avg?'Promedio: '+avg+' '+unitLabel()+' · '+r.length+' registro'+(r.length!==1?'s':''):r.length+' registro'+(r.length!==1?'s':'');
+}
+
+// ── NAVIGATION ────────────────────────────────────────────
+function showPage(p){
+  ['reg','hist','graf','ajustes'].forEach(function(id){document.getElementById('page-'+id).style.display=id===p?'':'none';});
+  ['r','h','g','a'].forEach(function(id,i){document.getElementById('nav-'+id).classList.toggle('active',['reg','hist','graf','ajustes'][i]===p);});
+  if(p==='hist')renderHist();
+  if(p==='graf')renderGraf();
+  if(p==='ajustes')refreshAll();
+}
+
+// ── AI PHOTO ──────────────────────────────────────────────
+function toB64(file){
+  return new Promise(function(res,rej){
+    var reader=new FileReader();
+    reader.onload=function(e){
+      // Always convert to JPEG for consistency
+      var img=new Image();
+      img.onload=function(){
+        var canvas=document.createElement('canvas');
+        // Resize if too large (max 1200px)
+        var maxW=1200,w=img.width,h=img.height;
+        if(w>maxW){h=Math.round(h*maxW/w);w=maxW;}
+        canvas.width=w;canvas.height=h;
+        canvas.getContext('2d').drawImage(img,0,0,w,h);
+        res(canvas.toDataURL('image/jpeg',0.85).split(',')[1]);
+      };
+      img.onerror=function(){rej(new Error('Error al cargar imagen'));};
+      img.src=e.target.result;
+    };
+    reader.onerror=function(){rej(new Error('Error al leer archivo'));};
+    reader.readAsDataURL(file);
+  });
+}
+
+async function handleFoto(input,tipo){
+  if(!input.files||!input.files[0])return;
+  var file=input.files[0];
+  try{
+    var b64=await toB64(file);
+    // Show preview
+    var prevEl=document.getElementById('prev-'+(tipo==='r'?'r':'t'));
+    prevEl.src='data:image/jpeg;base64,'+b64;
+    prevEl.style.display='block';
+    if(tipo==='r'){
+      b64r=b64;
+      document.getElementById('pb-r').classList.add('done');
+      document.getElementById('pa-r').classList.add('done');
+      document.getElementById('rl').textContent='✓ Recibo cargado';
+    } else {
+      b64t=b64;
+      document.getElementById('pb-t').classList.add('done');
+      document.getElementById('pa-t').classList.add('done');
+      document.getElementById('tl').textContent='✓ Odómetro cargado';
+    }
+    await analizarIA();
+  }catch(e){
+    snack('⚠ Error al procesar imagen: '+e.message);
+  }
+}
+
+async function analizarIA(){
+  if(aiRunning||(!b64r&&!b64t))return;
+  aiRunning=true;
+  var el=document.getElementById('ai-st');
+  el.style.display='block';el.className='status-chip s-loading';
+  el.innerHTML='<span class="sp"></span> Analizando con IA...';
+  var content=[];
+  if(b64r){content.push({type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64r}});content.push({type:'text',text:'Esta es la foto del recibo de gasolina.'});}
+  if(b64t){content.push({type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64t}});content.push({type:'text',text:'Esta es la foto del odómetro del vehículo.'});}
+  var uh=unit==='L'?'litros':'galones',us=unit==='L'?'litro':'galón';
+  content.push({type:'text',text:'Analiza las imágenes y extrae datos numéricos. El usuario mide en '+uh+'.\nResponde ÚNICAMENTE con JSON válido, sin texto adicional, sin backticks:\n{"vol":null,"precio_vol":null,"total":null,"km":null}\nvol=cantidad en '+uh+', precio_vol=precio por '+us+', total=monto pagado en soles, km=lectura del odómetro. Usa null si no puedes leer el dato con certeza.'});
+  try{
+    var resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:300,messages:[{role:'user',content:content}]})
+    });
+    if(!resp.ok)throw new Error('HTTP '+resp.status);
+    var data=await resp.json();
+    if(data.error)throw new Error(data.error.message||'API error');
+    var txt=(data.content||[]).map(function(c){return c.text||'';}).join('').replace(/```json|```/g,'').trim();
+    var p=JSON.parse(txt);
+    var found=0;
+    if(p.vol!=null){document.getElementById('f-vol').value=p.vol;found++;}
+    if(p.precio_vol!=null){document.getElementById('f-pvol').value=p.precio_vol;found++;}
+    if(p.total!=null){document.getElementById('f-total').value=p.total;found++;}
+    if(p.km!=null){document.getElementById('f-km').value=p.km;found++;}
+    el.className='status-chip '+(found>0?'s-ok':'s-err');
+    el.innerHTML=found>0?'<i class="ti ti-check" aria-hidden="true"></i> IA detectó '+found+' campo'+(found>1?'s':'')+'. Revisa antes de guardar.':'<i class="ti ti-alert-triangle" aria-hidden="true"></i> No se leyeron datos. Ingresa manualmente.';
+  }catch(e){
+    el.className='status-chip s-err';
+    el.innerHTML='<i class="ti ti-alert-triangle" aria-hidden="true"></i> Error: '+e.message+'. Ingresa manualmente.';
+  }
+  aiRunning=false;
+}
+
+// ── GUARDAR ───────────────────────────────────────────────
+function guardar(){
+  var km=parseFloat(document.getElementById('f-km').value);
+  var vol=parseFloat(document.getElementById('f-vol').value);
+  var pvol=parseFloat(document.getElementById('f-pvol').value);
+  var total=parseFloat(document.getElementById('f-total').value);
+  if(!km||!vol){snack('⚠ Kilometraje y cantidad de combustible son obligatorios');return;}
+  var recs=getRecs(),prev=recs[recs.length-1],rend=null,cpk=null;
+  if(prev){var diff=km-prev.km;if(diff>0&&vol>0){rend=parseFloat((diff/vol).toFixed(2));if(total)cpk=parseFloat((total/diff).toFixed(3));}}
+  recs.push({id:Date.now(),fecha:new Date().toLocaleDateString('es-PE',{day:'2-digit',month:'short',year:'numeric'}),km:km,vol:vol,pvol:pvol||null,total:total||null,rend:rend,cpk:cpk,unit:unit});
+  saveRecs(recs);
+  ['f-km','f-vol','f-pvol','f-total'].forEach(function(id){document.getElementById(id).value='';});
+  b64r=null;b64t=null;
+  ['pb-r','pb-t','pa-r','pa-t'].forEach(function(id){document.getElementById(id).classList.remove('done');});
+  document.getElementById('rl').textContent='Foto del recibo';
+  document.getElementById('tl').textContent='Foto del odómetro';
+  document.getElementById('ai-st').style.display='none';
+  document.getElementById('prev-r').style.display='none';
+  document.getElementById('prev-t').style.display='none';
+  refreshAll();
+  if(gdriveToken)syncToDrive();
+  snack(rend?'✓ Guardado — '+rend+' '+unitLabel():'✓ Guardado. Registra otra para calcular rendimiento.');
+}
+
+// ── HISTORIAL ─────────────────────────────────────────────
+function renderHist(){
+  var recs=getRecs(),mg=document.getElementById('mg'),lista=document.getElementById('lista');
+  if(!recs.length){mg.innerHTML='';lista.innerHTML='<div class="empty-state"><i class="empty-icon ti ti-gas-station" aria-hidden="true"></i>Sin registros aún</div>';return;}
+  var conRend=recs.filter(function(r){return r.rend;});
+  var avgR=conRend.length?(conRend.reduce(function(s,r){return s+r.rend;},0)/conRend.length).toFixed(1):'--';
+  var totalG=recs.filter(function(r){return r.total;}).reduce(function(s,r){return s+r.total;},0);
+  var conCpk=conRend.filter(function(r){return r.cpk;});
+  var avgC=conCpk.length?(conCpk.reduce(function(s,r){return s+r.cpk;},0)/conCpk.length).toFixed(3):'--';
+  mg.innerHTML='<div class="metric-chip"><div class="lbl">Rend. promedio</div><div class="val">'+avgR+'</div><div class="unt">'+unitLabel()+'</div></div><div class="metric-chip"><div class="lbl">Costo por km</div><div class="val">S/ '+avgC+'</div></div><div class="metric-chip"><div class="lbl">Total gastado</div><div class="val">S/ '+totalG.toFixed(2)+'</div></div><div class="metric-chip"><div class="lbl">Tanqueadas</div><div class="val">'+recs.length+'</div></div>';
+  var thG=unit==='L'?12:45,thA=unit==='L'?9:34;
+  lista.innerHTML=[...recs].reverse().map(function(r){
+    var badge='';
+    if(r.rend){var cls=r.rend>=thG?'bg':r.rend>=thA?'ba':'bl';var ru=r.unit||unit;badge='<span class="h-badge '+cls+'">'+r.rend+' '+(ru==='L'?'km/L':'km/gal')+'</span>';}
+    var vu=r.unit||unit;
+    return '<div class="h-item"><div class="h-av">'+String(r.km).slice(-4)+'</div><div class="h-main"><div class="h-title">'+r.km.toLocaleString()+' km · '+r.vol+' '+(vu==='L'?'L':'gal')+(r.total?' · S/ '+r.total.toFixed(2):'')+  '</div><div class="h-sub">'+r.fecha+(r.cpk?' · S/ '+r.cpk+'/km':'')+'</div></div>'+(badge||'<span style="font-size:12px;color:var(--md-outline);">—</span>')+'<button class="btn-del" onclick="confirmarEliminar('+r.id+')" aria-label="Eliminar"><i class="ti ti-trash" style="font-size:16px;" aria-hidden="true"></i></button></div>';
+  }).join('');
+}
+
+// ── GRAFICAS ──────────────────────────────────────────────
+function renderGraf(){
+  var recs=getRecs().filter(function(r){return r.rend;});
+  var empty=document.getElementById('g-empty'),content=document.getElementById('g-content');
+  if(recs.length<2){empty.style.display='';content.style.display='none';return;}
+  empty.style.display='none';content.style.display='';
+  document.getElementById('lbl-c1').textContent='Rendimiento ('+unitLabel()+')';
+  var isDark=matchMedia('(prefers-color-scheme:dark)').matches;
+  var gridC=isDark?'rgba(255,255,255,.08)':'rgba(0,0,0,.07)',tickC=isDark?'#BEC9C8':'#3F4948';
+  if(c1)c1.destroy();if(c2)c2.destroy();if(c3)c3.destroy();
+  c1=new Chart(document.getElementById('c1'),{type:'line',data:{labels:recs.map(function(r){return r.fecha;}),datasets:[{label:unitLabel(),data:recs.map(function(r){return r.rend;}),borderColor:'#006A6A',backgroundColor:'rgba(0,106,106,.08)',fill:true,tension:.35,pointBackgroundColor:'#006A6A',pointRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:10},color:tickC,maxRotation:40,autoSkip:true},grid:{color:gridC}},y:{ticks:{font:{size:10},color:tickC},grid:{color:gridC},beginAtZero:false}}}});
+  var cpkR=getRecs().filter(function(r){return r.cpk;});
+  if(cpkR.length>=2)c2=new Chart(document.getElementById('c2'),{type:'bar',data:{labels:cpkR.map(function(r){return r.fecha;}),datasets:[{data:cpkR.map(function(r){return r.cpk;}),backgroundColor:'rgba(186,117,23,.65)',borderColor:'#BA7517',borderWidth:1}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:10},color:tickC,maxRotation:40,autoSkip:true},grid:{color:gridC}},y:{ticks:{font:{size:10},color:tickC},grid:{color:gridC},beginAtZero:true}}}});
+  var totR=getRecs().filter(function(r){return r.total;});
+  if(totR.length>=2)c3=new Chart(document.getElementById('c3'),{type:'bar',data:{labels:totR.map(function(r){return r.fecha;}),datasets:[{data:totR.map(function(r){return r.total;}),backgroundColor:'rgba(0,106,106,.55)',borderColor:'#006A6A',borderWidth:1}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:10},color:tickC,maxRotation:40,autoSkip:true},grid:{color:gridC}},y:{ticks:{font:{size:10},color:tickC},grid:{color:gridC},beginAtZero:true}}}});
+}
+
+// ── REFRESH ALL ───────────────────────────────────────────
+function refreshAll(){
+  var v=getVehicle()||{nombre:'Mi carro',marca:'',modelo:'',anio:''};
+  var titleParts=[v.nombre];if(v.marca)titleParts.push(v.marca);
+  document.getElementById('app-title').textContent=titleParts.join(' · ');
+  document.title=v.nombre+' ⛽';
+  injectManifest(v.nombre);
+  document.getElementById('vc-nombre').textContent=v.nombre;
+  var d=[];if(v.marca)d.push(v.marca);if(v.modelo)d.push(v.modelo);if(v.anio)d.push(v.anio);
+  document.getElementById('vc-detail').textContent=d.join(' · ')||'Sin detalles';
+  document.getElementById('sv-nombre').textContent=v.nombre||'—';
+  document.getElementById('sv-marca').textContent=v.marca||'—';
+  document.getElementById('sv-modelo').textContent=v.modelo||'—';
+  document.getElementById('sv-anio').textContent=v.anio||'—';
+  var recs=getRecs(),wr=recs.filter(function(r){return r.rend;});
+  document.getElementById('st-total').textContent=recs.length;
+  if(wr.length){var rv=wr.map(function(r){return r.rend;});document.getElementById('st-best').textContent=Math.max.apply(null,rv).toFixed(2)+' '+unitLabel();document.getElementById('st-worst').textContent=Math.min.apply(null,rv).toFixed(2)+' '+unitLabel();}
+  else{document.getElementById('st-best').textContent='—';document.getElementById('st-worst').textContent='—';}
+  var g=recs.filter(function(r){return r.total;}).reduce(function(s,r){return s+r.total;},0);
+  document.getElementById('st-gasto').textContent='S/ '+g.toFixed(2);
+  if(recs.length>=2){var kmn=Math.min.apply(null,recs.map(function(r){return r.km;})),kmx=Math.max.apply(null,recs.map(function(r){return r.km;}));document.getElementById('st-km').textContent=(kmx-kmn).toLocaleString()+' km';}
+  else document.getElementById('st-km').textContent='—';
+  // restore last sync label
+  var ls=localStorage.getItem('ft_gdrive_sync');
+  var lsEl=document.getElementById('gdrive-last-sync');
+  if(ls&&lsEl)lsEl.textContent=ls;
+  updateTopSub();
+}
+
+// ── EDIT VEHICLE ──────────────────────────────────────────
+function abrirEditarVehiculo(){
+  var v=getVehicle()||{};
+  document.getElementById('modal-title').textContent='Editar vehículo';
+  document.getElementById('modal-body').textContent='';
+  document.getElementById('modal-extra').innerHTML='<div class="ob-card" style="margin-bottom:16px;"><div class="ob-inp-wrap"><input type="text" id="ev-nombre" placeholder=" " value="'+escHtml(v.nombre||'')+'" maxlength="30"><label>Nombre / apodo *</label></div><div class="ob-inp-wrap"><input type="text" id="ev-marca" placeholder=" " value="'+escHtml(v.marca||'')+'" maxlength="30"><label>Marca</label></div><div class="inp-row"><div class="ob-inp-wrap"><input type="text" id="ev-modelo" placeholder=" " value="'+escHtml(v.modelo||'')+'" maxlength="30"><label>Modelo</label></div><div class="ob-inp-wrap"><input type="text" id="ev-anio" placeholder=" " value="'+escHtml(v.anio||'')+'" maxlength="4" inputmode="numeric"><label>Año</label></div></div></div>';
+  document.getElementById('modal-ok').textContent='Guardar';
+  document.getElementById('modal-ok').className='btn-text';
+  document.getElementById('modal-ok').onclick=function(){
+    var nombre=document.getElementById('ev-nombre').value.trim();
+    if(!nombre){snack('⚠ El nombre es obligatorio');return;}
+    saveVehicle({nombre:nombre,marca:document.getElementById('ev-marca').value.trim(),modelo:document.getElementById('ev-modelo').value.trim(),anio:document.getElementById('ev-anio').value.trim()});
+    refreshAll();closeModal();snack('✓ Vehículo actualizado');
+  };
+  document.getElementById('modal').style.display='flex';
+}
+function escHtml(s){return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
+
+// ── EXPORT / IMPORT ───────────────────────────────────────
+function exportar(){
+  var recs=getRecs();if(!recs.length){snack('No hay datos para exportar');return;}
+  var v=getVehicle()||{};
+  var data={version:3,unit:unit,vehicle:v,exportado:new Date().toISOString(),registros:recs};
+  var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');a.href=url;a.download='fueltracker_'+(v.nombre||'backup').replace(/\s+/g,'_')+'_'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();URL.revokeObjectURL(url);snack('✓ Exportado: '+recs.length+' registros');
+}
+function importar(input){
+  if(!input.files[0])return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      var data=JSON.parse(e.target.result);
+      var recs=data.registros||data;if(!Array.isArray(recs))throw new Error('Formato inválido');
+      var existing=getRecs(),ids=new Set(existing.map(function(r){return r.id;}));
+      var nuevos=recs.filter(function(r){return !ids.has(r.id);});
+      var merged=existing.concat(nuevos).sort(function(a,b){return a.km-b.km;});
+      saveRecs(merged);
+      if(data.unit){unit=data.unit;saveUnit(unit);applyUnit();}
+      if(data.vehicle&&data.vehicle.nombre)saveVehicle(data.vehicle);
+      refreshAll();
+      if(document.getElementById('page-hist').style.display!=='none')renderHist();
+      snack('✓ '+nuevos.length+' nuevos registros importados');
+    }catch(err){snack('⚠ Error al leer archivo');}
+    input.value='';
+  };
+  reader.readAsText(input.files[0]);
+}
+
+// ── DELETE ────────────────────────────────────────────────
+function confirmarEliminar(id){
+  document.getElementById('modal-title').textContent='Eliminar registro';
+  document.getElementById('modal-body').textContent='¿Eliminar este registro? No se puede deshacer.';
+  document.getElementById('modal-extra').innerHTML='';
+  document.getElementById('modal-ok').textContent='Eliminar';
+  document.getElementById('modal-ok').className='btn-text danger';
+  document.getElementById('modal-ok').onclick=function(){saveRecs(getRecs().filter(function(r){return r.id!==id;}));refreshAll();renderHist();if(gdriveToken)syncToDrive();closeModal();snack('Registro eliminado');};
+  document.getElementById('modal').style.display='flex';
+}
+function confirmarBorrarTodo(){
+  var n=getRecs().length;if(!n){snack('No hay registros');return;}
+  document.getElementById('modal-title').textContent='Borrar todos los registros';
+  document.getElementById('modal-body').textContent='¿Borrar los '+n+' registros? Los datos del vehículo se mantienen.';
+  document.getElementById('modal-extra').innerHTML='';
+  document.getElementById('modal-ok').textContent='Borrar todo';
+  document.getElementById('modal-ok').className='btn-text danger';
+  document.getElementById('modal-ok').onclick=function(){saveRecs([]);refreshAll();renderHist();if(gdriveToken)syncToDrive();closeModal();snack('Registros eliminados');};
+  document.getElementById('modal').style.display='flex';
+}
+function confirmarReset(){
+  document.getElementById('modal-title').textContent='Restablecer todo';
+  document.getElementById('modal-body').textContent='¿Borrar todos los registros y datos del vehículo? Volverás al inicio.';
+  document.getElementById('modal-extra').innerHTML='';
+  document.getElementById('modal-ok').textContent='Restablecer';
+  document.getElementById('modal-ok').className='btn-text danger';
+  document.getElementById('modal-ok').onclick=function(){
+    localStorage.removeItem('ft_recs');localStorage.removeItem('ft_vehicle');localStorage.removeItem('ft_unit');localStorage.removeItem('ft_gdrive_token');localStorage.removeItem('ft_gdrive_sync');
+    closeModal();document.getElementById('main-app').style.display='none';document.getElementById('onboarding').style.display='flex';
+  };
+  document.getElementById('modal').style.display='flex';
+}
+function closeModal(e){if(!e||e.target===document.getElementById('modal'))document.getElementById('modal').style.display='none';}
+
+// ── SNACKBAR ──────────────────────────────────────────────
+var snackTimer=null;
+function snack(msg){var el=document.getElementById('snack');el.textContent=msg;el.classList.add('show');clearTimeout(snackTimer);snackTimer=setTimeout(function(){el.classList.remove('show');},3200);}
+
+// ── SERVICE WORKER ────────────────────────────────────────
+if('serviceWorker' in navigator){
+  var swCode="const CACHE='ft-v3';const ASSETS=[self.location.href];self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)));self.skipWaiting();});self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));});self.addEventListener('fetch',e=>{if(e.request.url.includes('googleapis.com')||e.request.url.includes('anthropic.com'))return;e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)));});";
+  var swBlob=new Blob([swCode],{type:'application/javascript'});
+  navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(function(){});
+}
+</script>
+</body>
+</html>
